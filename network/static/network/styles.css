@@ -1,0 +1,119 @@
+body {
+  background-color: #000000;
+  padding-top: 64px;
+}
+
+p {
+  color: white;
+}
+
+hr {
+  background-color: #9900cc;
+  margin-top: 0px;
+  position: relative;
+}
+
+h2 {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.box-page {
+  margin-right: auto;
+  margin-left: auto;
+  width: 900px;
+}
+
+/* =================================================================== Navbar */
+.navbar {
+  background-color: #141414;
+}
+
+.chatter, .chatter:visited, h2 {
+  font-family: Shizuru;
+  font-size: 32px;
+  color: #dbd1fb !important;
+  text-shadow: 1px 1px 2px #0000FF, -1px -1px 2px #CC00CC,
+    15px 6px 15px #0000FF, 0px -2px 20px #CC00CC, 0px 0px 30px #FFFFFF;
+  letter-spacing: 1px;
+}
+
+.chatter:hover {
+  text-decoration: none;
+  color: #ffffe8!important;
+  text-shadow: 0px 0px 1px #FFFF00, 0 5px 15px #FFFF99, 0px -2px 25px #ffff00;
+}
+
+.nav-link, a {
+  color: #f0d9f7;
+}
+
+.nav-link:hover, a:hover {
+  color: #dba6ed;
+}
+
+/* ================================================================ Write box */
+.purple-box {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #9900cc;
+  border-radius: 15px;
+  background-color: #141414;
+  margin: 20px 0 20px 0;
+}
+
+textarea, button, .button, .input-form, .message-box {
+  width: 850px;
+  display: block;
+  border-radius: 15px;
+  margin: 15px auto 15px auto;
+  padding: 7px;
+}
+
+textarea, .input-form {
+  outline: none;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #e0b2f0;
+  box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;
+  background-color: #000000;
+  color: #e6e6e6;
+  margin-bottom: 25px;
+}
+
+textarea:hover, .input-form:hover {
+  border-color: #ffff00;
+  box-shadow: 0px 1px 2px #ff6600, 0 3px 15px #FFFF99, 0px -1px 5px #ffff00;
+}
+
+::placeholder {
+  color: #595959;
+  opacity: 1;
+}
+
+button, .button {
+  border: none;
+  background-color: #000000;
+  color: #9900cc;
+}
+
+button:hover, .button:hover {
+  color: #FFFF99;
+  background-color: #262626;
+}
+
+/* ================================================================= Read box */
+.intro-sentence {
+  color: #f0d9f7;
+  font-style: italic;
+  margin: 5px 25px 5px 25px;
+}
+
+.message-box {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #e0b2f0;
+  box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;
+  background-color: #000000;
+  color: #e6e6e6;
+}

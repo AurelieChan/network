@@ -1,0 +1,67 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" href="{% static 'network/favicon.ico' %}" />
+    <title>{% block title %}Chatter{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shizuru&display=swap" rel="stylesheet">
+    <link href="{% static 'network/styles.css' %}" rel="stylesheet">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <a class="chatter" onclick="topPage()">Chatter</a>
+
+      <div class="ml-auto">
+        <ul class="navbar-nav">
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
+            </li>
+          {% endif %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+          </li>
+
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="#">Following</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Log In</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'register' %}">Register</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+    <hr>
+    <div class="body">
+        {% block body %}
+        {% endblock %}
+    </div>
+
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="{% static 'network/page_content.js' %}"></script>
+
+    <script>
+    function topPage() {
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+    }
+    </script>
+
+  </body>
+</html>
