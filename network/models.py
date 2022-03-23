@@ -3,10 +3,18 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    following = models.ManyToManyField('self', blank=True, related_name="followers")
 
-class Message(models.Model):
-    user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="messages")
-    sender = models.ForeignKey("User", on_delete=models.PROTECT, related_name="messages_sent")
-    body = models.TextField(blank=True)
+class Post(models.Model):
+    sender = models.ForeignKey("User", on_delete=models.CASCADE, related_name="post_sender")
+    chatterpost = models.TextField(max_length = 800)
     timestamp = models.DateTimeField(auto_now_add=True)
+    # likedby = models.ManyToManyField(User, blank=True, related_name="like")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "sender": self.sender.username,
+            "chatterpost": self.chatterpost,
+            "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
+        }

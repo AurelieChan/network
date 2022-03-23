@@ -7,12 +7,6 @@ p {
   color: white;
 }
 
-hr {
-  background-color: #9900cc;
-  margin-top: 0px;
-  position: relative;
-}
-
 h2 {
   margin-top: 10px;
   margin-bottom: 20px;
@@ -24,9 +18,21 @@ h2 {
   width: 900px;
 }
 
+i {
+  cursor: pointer;
+}
+
 /* =================================================================== Navbar */
 .navbar {
   background-color: #141414;
+}
+
+.hl {
+  position: fixed;
+  width: 100%;
+  height: 1px;
+  top: 64px;
+  background-color: #9900cc;
 }
 
 .chatter, .chatter:visited, h2 {
@@ -36,20 +42,68 @@ h2 {
   text-shadow: 1px 1px 2px #0000FF, -1px -1px 2px #CC00CC,
     15px 6px 15px #0000FF, 0px -2px 20px #CC00CC, 0px 0px 30px #FFFFFF;
   letter-spacing: 1px;
+  word-spacing: -20px;
 }
 
 .chatter:hover {
   text-decoration: none;
-  color: #ffffe8!important;
+  color: #FFFF66!important;
   text-shadow: 0px 0px 1px #FFFF00, 0 5px 15px #FFFF99, 0px -2px 25px #ffff00;
 }
 
+/* .nav-link, a { */
 .nav-link, a {
-  color: #f0d9f7;
+  color: #f0d9f7 !important;
 }
 
-.nav-link:hover, a:hover {
+/* .nav-link:hover, a:hover { */
+a:hover {
+  color: #dba6ed !important;
+}
+
+/* ==================================================================== Icons */
+.userplus {
+  color: #595959;
+  font-size: 20px;
+  display:inline-block;
+  float: right;
+  margin-right: 25px;
+  margin-top: 10px;
+}
+
+.edit {
   color: #dba6ed;
+  font-size: 18px;
+  display:inline-block;
+  float: right;
+  margin-right: 25px;
+  margin-top: 10px;
+}
+
+/* ================================================================= Tooltips */
+.mytooltip {
+  opacity: 1;
+  position: relative;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  color: #141414;
+  font-size: 14px;
+  background-color: #dba6ed;
+  text-align: center;
+  border-radius: 10px;
+  padding: 5px;
+  width: 160px;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -80px;
+  position: absolute;
+  z-index: 1;
+}
+
+.mytooltip:hover .tooltiptext {
+  visibility: visible;
 }
 
 /* ================================================================ Write box */
@@ -102,18 +156,45 @@ button:hover, .button:hover {
   background-color: #262626;
 }
 
+button:focus {
+  outline-color: #CC66FF;
+}
+
+
 /* ================================================================= Read box */
 .intro-sentence {
+  display: inline-block;
   color: #f0d9f7;
   font-style: italic;
   margin: 5px 25px 5px 25px;
 }
 
+.likes-comments {
+  color: #f0d9f7;
+  margin: 5px 25px 5px 25px;
+  font-size: 18px;
+  letter-spacing: 3px;
+}
+
 .message-box {
+  white-space: pre-wrap;
   border-style: solid;
   border-width: 1px;
   border-color: #e0b2f0;
   box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;
   background-color: #000000;
   color: #e6e6e6;
+}
+
+.smooth-reset {
+  animation-name: hide;
+  animation-play-state: paused;
+  animation: smoothout 0.8s;
+}
+
+@keyframes smoothout {
+  0% {font-size: 1rem; margin: 5px 25px 5px 25px; opacity: 1;}
+  60% {font-size: 1rem; margin: 5px 25px 5px 25px; opacity: 1;}
+  80% {font-size: 1rem; margin: 5px 25px 5px 25px; opacity: 0;}
+  100% {font-size: 0rem; margin: 5px 0px 5px 0px; opacity: 0;}
 }

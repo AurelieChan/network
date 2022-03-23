@@ -3,11 +3,16 @@
 {% block body %}
   <div class="box-page">
 
-    {# {% if user.is_authenticated %} #}
-      <div id="page_content"></div>
-    {# {% endif %} #}
+    {# Compose box #}
+    <form class="purple-box">
+      <p class="intro-sentence" style="color: #dba6ed" id="message"></p>
+      <textarea rows="3" cols="50" id="compose-message" placeholder="What's up today, {{user.username}}?"></textarea>
+      <button type="button" name="button" onclick="send_chatterpost()">Send</button>
+    </form>
 
-    <div id="test"></div>
+    {# Posts view #}
+    <div id="posts-view"></div>
 
   </div>
+
 {% endblock %}
