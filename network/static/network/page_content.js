@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#all_posts').addEventListener('click', () => load_posts('all_posts'));
   document.querySelector('#following').addEventListener('click', () => load_posts('following'));
 
-  // var username = document.getElementById('username').textContent; // can be better
-  // document.querySelector('#username').addEventListener('click', () => load_posts(username));
+  var username = document.querySelector('.username').textContent;
+  document.querySelector('.username').addEventListener('click', () => load_posts(username));
 
   // By default, load all posts
   load_posts('all_posts');
@@ -92,14 +92,12 @@ function display_chatterposts(view, insert) {
       // Insert new post
       var username = document.getElementById('username').textContent;
 
-      for (let i = 0; i < 3; i++) { // 3 is a "security" value for top checks
+      for (let i = 1; i < 3; i++) { // 3 is a "security" value for top checks
         var postId = document.getElementById("id_" + posts[i].id);
 
         if (username == posts[i].sender && postId == null) {
           // Add new post as the latest on the list
           const postView = document.getElementById('posts-view');
-          // document.getElementById('posts-view').insertAdjacentHTML("afterbegin", postDiv(posts[i]));
-          // var postDivString = postDiv(posts[i]);
           var newPostDiv = new DOMParser().parseFromString(postDiv(posts[i]), "text/html");
           postView.insertBefore(newPostDiv.body.firstChild, postView.children[1]);
         }
@@ -107,8 +105,35 @@ function display_chatterposts(view, insert) {
 
     }
     else {
-      // Load posts
-      for (let i = 0; i < posts.length; i++) {
+      // Construct user infos view
+      const followers = posts[0]["followers"];
+      const following = posts[0]["following"];
+      const chatterposts = posts[0]["postsCount"];
+
+      // Don't display anything if not userview
+      if (followers != undefined) {
+
+        if (followers == 1)
+          followerWord = "follower";
+        else
+          followerWord = "followers";
+
+        if (chatterposts == 1)
+          chatterpostWord = "chatterpost";
+        else
+          chatterpostWord = "chatterposts";
+
+        // Display datas in userview
+        document.querySelector('#posts-view').innerHTML +=
+          `<p id="user-info">
+            &#9672; &nbsp; ${followers} ${followerWord} &nbsp;
+            &#9672; &nbsp; ${following} following &nbsp;
+            &#9672; &nbsp; ${chatterposts} ${chatterpostWord} &nbsp; &#9672;
+          </p>`;
+      }
+
+      // Load posts. Starts at 1 because 0 contains the box with user's data.
+      for (let i = 1; i < posts.length; i++) {
         document.querySelector('#posts-view').innerHTML += postDiv(posts[i]);
       }
     }
@@ -122,23 +147,37 @@ function postDiv(post) {
   var sender = post.sender;
   var timestamp = post.timestamp;
   var chatterpost = post.chatterpost;
+  var follow = post.follow;
 
-  // var following = follow.following;
-  // If following other icon
-  // Else
+  var username = document.querySelector('.username').textContent;
+
+  if (sender === username) {
+    icon = `<i class="fas fa-pen edit mytooltip">
+              <span id='text' class="tooltiptext">Edit this message</span>
+            </i>`
+  }
+
+  else if (follow == true) {
+    icon = `<i class="fa fa-user-check usercheck mytooltip ${sender}" onclick="followSender('${sender}', ${follow})">
+              <span id='text' class="tooltiptext">Unfollow this fellow</span>
+            </i>`
+  }
+  else {
+    icon = `<i class="fa fa-user-plus userplus mytooltip ${sender}" onclick="followSender('${sender}', ${follow})">
+              <span id='text' class="tooltiptext">Follow this fellow</span>
+            </i>`
+  }
 
   // Design each post view
   return `<div class="purple-box" id="${postId}">
     <div>
       <p class="intro-sentence">
-        <strong style="color:#dba6ed">${sender}</strong> chatted on ${timestamp}:
+        <a onclick="load_posts('${sender}')">
+          <strong style="color:#dba6ed">${sender}</strong>
+        </a>
+        chatted on ${timestamp}:
       </p>
-      <i class="fa fa-user-plus userplus mytooltip">
-        <span id='text' class="tooltiptext">Follow this fellow</span>
-      </i>
-      <i class="fas fa-pen edit mytooltip">
-        <span id='text' class="tooltiptext">Edit this message</span>
-      </i>
+      ${icon}
     </div>
     <div class="message-box">${chatterpost}</div>
     <p class="likes-comments">
@@ -146,4 +185,65 @@ function postDiv(post) {
       0 <i style="color:#dba6ed" class="far fa-comment"></i>
     </p>
   </div>`
+}
+
+// ====================================================================== Follow
+function followSender(sender, follow) {
+
+  if (follow == true) {
+    // Call function to change icon
+    document.querySelectorAll('.' + String(sender)).forEach(changeClassUnfollow);
+
+    fetch(`post/${sender}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        follow: false
+      })
+    })
+    .then(response => {
+      // Call function to change icon
+      document.querySelectorAll('.' + String(sender)).forEach(changeClassUnfollow);
+    })
+  }
+  else {
+    // Call function to change icon
+    document.querySelectorAll('.' + String(sender)).forEach(changeClassFollow);
+
+    fetch(`post/${sender}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        follow: true
+      })
+    })
+    .then(response => {
+      // Call function to change icon
+      document.querySelectorAll('.' + String(sender)).forEach(changeClassFollow);
+    })
+  }
+};
+
+// =========================================================== Not followed icon
+function changeClassUnfollow(unfollow) {
+  // Change class
+  unfollow.classList.remove('fa-user-check', 'usercheck');
+  unfollow.classList.add('fa-user-plus', 'userplus');
+
+  // Change tooltip text
+  unfollow.firstElementChild.textContent = 'Follow this fellow';
+
+  // Reset the onclick function value
+  unfollow.setAttribute("onClick", `followSender("${unfollow.classList[2]}", false);`);
+}
+
+// =============================================================== Followed icon
+function changeClassFollow(follow) {
+  // Change class
+  follow.classList.remove('fa-user-plus', 'userplus');
+  follow.classList.add('fa-user-check', 'usercheck');
+
+  // Change tooltip text
+  follow.firstElementChild.textContent = 'Unfollow this fellow';
+
+  // Reset the onclick function value
+  follow.setAttribute("onClick", `followSender("${follow.classList[2]}", true);`);
 }

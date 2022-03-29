@@ -18,7 +18,7 @@ h2 {
   width: 900px;
 }
 
-i {
+i, a {
   cursor: pointer;
 }
 
@@ -61,23 +61,35 @@ a:hover {
   color: #dba6ed !important;
 }
 
+/* ============================================================== User's info */
+#user-info {
+  color: #9900cc;
+  float: right;
+  margin-top: -45px;
+}
+
 /* ==================================================================== Icons */
-.userplus {
-  color: #595959;
-  font-size: 20px;
+.userplus, .usercheck, .edit {
   display:inline-block;
   float: right;
   margin-right: 25px;
   margin-top: 10px;
 }
 
+.userplus, .usercheck {
+  font-size: 20px;
+}
+
 .edit {
-  color: #dba6ed;
   font-size: 18px;
-  display:inline-block;
-  float: right;
-  margin-right: 25px;
-  margin-top: 10px;
+}
+
+.userplus {
+  color: #595959;
+}
+
+.usercheck, .edit {
+  color: #dba6ed;
 }
 
 /* ================================================================= Tooltips */
@@ -90,6 +102,7 @@ a:hover {
   visibility: hidden;
   color: #141414;
   font-size: 14px;
+  font-family: sans-serif;
   background-color: #dba6ed;
   text-align: center;
   border-radius: 10px;
@@ -159,7 +172,6 @@ button:hover, .button:hover {
 button:focus {
   outline-color: #CC66FF;
 }
-
 
 /* ================================================================= Read box */
 .intro-sentence {

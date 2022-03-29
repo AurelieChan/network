@@ -28,12 +28,11 @@
         <ul class="navbar-nav">
           {% if user.is_authenticated %}
             <li class="nav-item">
-              <a id="username" class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
+              <a class="nav-link username"><strong>{{ user.username }}</strong></a>
             </li>
           {% endif %}
 
           <li class="nav-item">
-            {# <a class="nav-link" id="all_posts" href="{% url 'index' %}">All Posts</a> #}
             <a class="nav-link" id="all_posts">All Posts</a>
           </li>
 

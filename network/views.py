@@ -103,32 +103,81 @@ def postsview(request, view):
     # Filter posts according requested view
     if view == "all_posts":
         posts = Post.objects.all()
+        box = {}
 
     elif view == "following":
         followedUsers = request.user.following.all()
         posts = Post.objects.filter(sender__in=followedUsers)
-
-    # elif view == request.user.username:
-    #     posts = Post.objects.filter(sender__in=request.user.id)
+        box = {}
 
     else:
-        return JsonResponse({"error": "Invalid posts view."}, status=400)
+        try:
+            # Posts from that specific user
+            posts = User.objects.get(username=view).sent_post.all()
 
-    # # Check if the sender of each post is followed
-    # for post in posts:
-    #     if sender.id in following.id:
-    #         follow == True
-    #     else:
-    #         follow == False
-    #
-    #     # add the data to the dictionary
-    #     posts = post.serialize()
-    #     posts["follow"] = follow
+            # Store basic infos of the specific user in a box
+            box =   {   "followers": User.objects.get(username=view).followers.count(),
+                        "following": User.objects.get(username=view).following.count(),
+                        "postsCount": User.objects.get(username=view).sent_post.count()
+                    }
 
-    # Return posts in reverse chronologial order
+        except:
+            return JsonResponse({"error": "Invalid posts view."}, status=400)
+
+    # Empty list of posts
+    listOfPosts = []
+
+    # Add the "box" as the first item to the dictionary
+    listOfPosts.append(box)
+
     posts = posts.order_by("-timestamp").all()
-    # return JsonResponse([post.serialize() for post in posts], safe=False)
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+
+    # Check if the sender of each post is followed
+    for post in posts:
+
+        individualPost = post.serialize()
+        sender = individualPost["sender"]
+
+        if request.user.following.filter(username=sender):
+            follow = True
+        else:
+            follow = False
+
+        # Add the data to the dictionary
+        individualPost["follow"] = follow
+
+        # Then append all the appropriate posts
+        listOfPosts.append(individualPost)
+
+    return JsonResponse(listOfPosts, safe=False)
+
+# ======================================================================= Follow
+@csrf_exempt
+@login_required
+def follow(request, sender):
+
+    # Query for requested sender
+    try:
+        senderObj = User.objects.get(username=sender)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Sender not found."}, status=404)
+
+    if request.method == "PUT":
+        # Get if follow is try or false:
+        data = json.loads(request.body)
+        follow = data["follow"]
+
+        # Update the DB:
+        if follow:
+            User.objects.get(username=request.user).following.add(senderObj)
+        else:
+            User.objects.get(username=request.user).following.remove(senderObj)
+        return HttpResponse(status=204)
+
+    else:
+        return JsonResponse({
+            "error": "GET or PUT request required."
+        }, status=400)
 
 # ======================================================================== Likes
 # def like(request):
