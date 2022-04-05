@@ -9,7 +9,7 @@ class Post(models.Model):
     sender = models.ForeignKey("User", on_delete=models.CASCADE, related_name="sent_post")
     chatterpost = models.TextField(max_length = 800)
     timestamp = models.DateTimeField(auto_now_add=True)
-    # likedby = models.ManyToManyField(User, blank=True, related_name="like")
+    likedby = models.ManyToManyField(User, blank=True, related_name="like")
 
     def serialize(self):
         return {
@@ -17,4 +17,6 @@ class Post(models.Model):
             "sender": self.sender.username,
             "chatterpost": self.chatterpost,
             "timestamp": self.timestamp.strftime("%b %d %Y, %I:%M %p"),
+            # For loop to get a list of usernames that liked one post
+            "likedby": [like.username for like in self.likedby.all()]
         }

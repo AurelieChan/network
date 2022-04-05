@@ -12,5 +12,6 @@ urlpatterns = [
     #API Routes
     path("chatterpost", views.compose, name="compose"),
     path("postsview/<str:view>", views.postsview, name="posts"),
-    path("post/<str:sender>", views.follow, name="follow")
+    path("post/<str:sender>", views.follow, name="follow"),
+    path("postid/<str:post_id>", views.like, name="like")
 ]

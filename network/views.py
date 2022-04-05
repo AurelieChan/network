@@ -101,11 +101,11 @@ def compose(request):
 def postsview(request, view):
 
     # Filter posts according requested view
-    if view == "all_posts":
+    if view.casefold() == "all_posts":
         posts = Post.objects.all()
         box = {}
 
-    elif view == "following":
+    elif view.casefold() == "following":
         followedUsers = request.user.following.all()
         posts = Post.objects.filter(sender__in=followedUsers)
         box = {}
@@ -163,7 +163,7 @@ def follow(request, sender):
         return JsonResponse({"error": "Sender not found."}, status=404)
 
     if request.method == "PUT":
-        # Get if follow is try or false:
+        # Get if follow is true or false:
         data = json.loads(request.body)
         follow = data["follow"]
 
@@ -180,19 +180,26 @@ def follow(request, sender):
         }, status=400)
 
 # ======================================================================== Likes
-# def like(request):
-#
-#     if request.method == "POST":
-#         current_username = request.user.username
-#         current_user = User.objects.get(username=current_username)
-#         post_id = Post.objects.get(id__exact= id).id
-#         like = listing.watchedby.filter(username=current_username)
-#         is_watching = watching.exists()
-#
-#         if is_watching:
-#             listing.watchedby.remove(current_user)
-#
-#         else:
-#             listing.watchedby.add(current_user)
-#
-#     return JsonResponse({})
+@csrf_exempt
+@login_required
+def like(request, post_id):
+
+    if request.method == "PUT":
+        # Get if likedby is true or false:
+        data = json.loads(request.body)
+        liked = data["liked"]
+
+        # Update the DB:
+        if liked:
+            # Add current user to the likedby list of current post
+            Post.objects.get(id=post_id).likedby.add(User.objects.get(username=request.user))
+        else:
+            # Remove current user from the likedby list of current post
+            Post.objects.get(id=post_id).likedby.remove(User.objects.get(username=request.user))
+
+        return HttpResponse(status=204)
+
+    else:
+        return JsonResponse({
+            "error": "GET or PUT request required."
+        }, status=400)

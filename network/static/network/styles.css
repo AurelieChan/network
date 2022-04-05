@@ -47,8 +47,8 @@ i, a {
 
 .chatter:hover {
   text-decoration: none;
-  color: #FFFF66!important;
-  text-shadow: 0px 0px 1px #FFFF00, 0 5px 15px #FFFF99, 0px -2px 25px #ffff00;
+  color: #fff5f5!important;
+  text-shadow: 0px 0px 1px #ff0066, 0 5px 15px #ff80b2, 0px -2px 25px #FF0066;
 }
 
 /* .nav-link, a { */
@@ -64,6 +64,7 @@ a:hover {
 /* ============================================================== User's info */
 #user-info {
   color: #9900cc;
+  display:inline-block;
   float: right;
   margin-top: -45px;
 }
@@ -84,12 +85,37 @@ a:hover {
   font-size: 18px;
 }
 
+.cancel-edit::after {
+  left: 5px;
+  top: -3px;
+  position: absolute;
+  content: "\\";
+  transform: rotate(-22deg);
+  color: #dba6ed;
+  font-size: 28px;
+}
+
 .userplus {
   color: #595959;
 }
 
 .usercheck, .edit {
   color: #dba6ed;
+}
+
+.animheart {
+  animation-name: hide;
+  animation: heart 0.7s;
+}
+
+@keyframes heart {
+  0% {color: #9933FF;}
+  25% {color: #6666FF;}
+  50% {text-shadow: 1px 1px 2px #0000FF, -1px -1px 2px #CC00CC,
+    15px 6px 15px #0000FF, 0px -2px 20px #CC00CC, 0px 0px 30px #FFFFFF;}
+  70% {color: #FF3399;}
+  85% {color: #CC66FF;}
+  100% {color: #DBA6ED;}
 }
 
 /* ================================================================= Tooltips */
@@ -133,7 +159,7 @@ textarea, button, .button, .input-form, .message-box {
   width: 850px;
   display: block;
   border-radius: 15px;
-  margin: 15px auto 15px auto;
+  margin: 10px auto 15px auto;
   padding: 7px;
 }
 
@@ -149,8 +175,13 @@ textarea, .input-form {
 }
 
 textarea:hover, .input-form:hover {
-  border-color: #ffff00;
-  box-shadow: 0px 1px 2px #ff6600, 0 3px 15px #FFFF99, 0px -1px 5px #ffff00;
+  border-color: #fff5f5!important;
+  border-width: 1px;
+  box-shadow: 0px 1px 3px #ff99a3, 0 3px 12px #FFCC66, 0px -2px 16px #FF0066;
+}
+
+textarea:focus, .input-form:focus {
+  border-width: 3px;
 }
 
 ::placeholder {
@@ -165,12 +196,13 @@ button, .button {
 }
 
 button:hover, .button:hover {
-  color: #FFFF99;
-  background-color: #262626;
+  color: #fc3382;
+  background-color: #31312e;
 }
 
 button:focus {
-  outline-color: #CC66FF;
+  outline: none;
+  border: none;
 }
 
 /* ================================================================= Read box */
@@ -209,4 +241,17 @@ button:focus {
   60% {font-size: 1rem; margin: 5px 25px 5px 25px; opacity: 1;}
   80% {font-size: 1rem; margin: 5px 25px 5px 25px; opacity: 0;}
   100% {font-size: 0rem; margin: 5px 0px 5px 0px; opacity: 0;}
+}
+
+.new-message {
+  animation-name: hide;
+  animation: new-message-shine 0.7s;
+}
+
+@keyframes new-message-shine {
+  0% {border-color: #6666FF;}
+  15% {box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;}
+  50% {box-shadow: 0px 1px 2px #ff0066, 0 3px 15px #ff80b2, 0px -1px 18px #FF0066; background-color: #505046}
+  85% {box-shadow: 0px 1px 3px #ff99a3, 0 3px 18px #FFCC66, 0px -2px 16px #FF0066;}
+  100% {border-color: #e0b2f0; background-color: #000000;}
 }
