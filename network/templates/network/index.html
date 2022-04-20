@@ -4,9 +4,9 @@
   <div class="box-page">
 
     {# Compose box #}
-    <form class="purple-box">
-      <p class="intro-sentence" style="color: #dba6ed" id="message"></p>
-      <textarea rows="3" cols="50" id="compose-message" placeholder="What's up today, {{user.username}}?"></textarea>
+    <form class="purple-box" style="padding: 10px 0;">
+      <p class="intro-sentence" style="color: #dba6ed; display: none;" id="message"></p>
+      <textarea style="min-height:90px" cols="50" id="compose-message" oninput="textareaResize(this)" placeholder="What's up today, {{user.username}}?"></textarea>
       <button type="button" name="button" onclick="sendChatterpost()">Send</button>
     </form>
 

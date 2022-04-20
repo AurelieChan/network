@@ -6,9 +6,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Post
+from .models import User, Post, Comment
 
 # ======================================================================== Index
 def index(request):
@@ -73,11 +73,10 @@ def register(request):
         return render(request, "network/register.html")
 
 # ====================================================================== Compose
-@csrf_exempt
 @login_required
 def compose(request):
 
-    # Composing a new email must be via POST
+    # Composing a new post must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
@@ -97,7 +96,6 @@ def compose(request):
         return JsonResponse({"message": "Message sent successfully."}, status=201)
 
 # ==================================================================== Post View
-@login_required
 def postsview(request, view):
 
     # Filter posts according requested view
@@ -146,14 +144,54 @@ def postsview(request, view):
         # Add the data to the dictionary
         individualPost["follow"] = follow
 
+        # Add amount of comments for each post
+        individualPost["comments"] = Comment.objects.filter(post_id=post.id).count()
+
         # Then append all the appropriate posts
         listOfPosts.append(individualPost)
 
     return JsonResponse(listOfPosts, safe=False)
 
-# ======================================================================= Follow
-@csrf_exempt
+# ========================================================================= Edit
 @login_required
+def edit(request, post_id):
+
+    # Editing a post must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    # Get contents of the edited message
+    data = json.loads(request.body)
+    editpost = data.get("editpost")
+
+    # Get name of the sender according to the id in the db
+    sender = Post.objects.get(id=post_id).sender.username
+
+    # if sender = the current user, then proceed to the next steps
+    if sender == str(request.user):
+
+        post = Post.objects.get(id=post_id)
+
+        if editpost == "":
+            post.chatterpost = "This message has been deleted by the user."
+            post.edited = True
+            post.deleted = True
+
+        else:
+            post.chatterpost = editpost
+            post.edited = True
+            post.deleted = False
+
+        post.save()
+        return JsonResponse({
+            "message": post.chatterpost,
+            "deleted": post.deleted
+        })
+
+    else:
+        return JsonResponse({"error": "This message cannot be updated."}, status=400)
+
+# ======================================================================= Follow
 def follow(request, sender):
 
     # Query for requested sender
@@ -180,8 +218,6 @@ def follow(request, sender):
         }, status=400)
 
 # ======================================================================== Likes
-@csrf_exempt
-@login_required
 def like(request, post_id):
 
     if request.method == "PUT":
@@ -203,3 +239,40 @@ def like(request, post_id):
         return JsonResponse({
             "error": "GET or PUT request required."
         }, status=400)
+
+# ====================================================================== Comment
+@login_required
+def comment(request, post_id):
+        # Composing a new post must be via POST
+        if request.method != "POST":
+            return JsonResponse({"error": "POST request required."}, status=400)
+
+        # Get contents of the message
+        data = json.loads(request.body)
+        comment = data.get("comment")
+        if comment == "":
+            return JsonResponse({"error": "Are you sure you don't have anything to say?"})
+
+        else:
+            comment = Comment(
+                commentor=request.user,
+                comment=comment,
+                post=Post.objects.get(id=post_id)
+            )
+            comment.save()
+
+            # If comment sent successufully, send new count of comments to the FE
+            countComments = Comment.objects.filter(post_id=post_id).count()
+            return JsonResponse({"message": countComments}, status=201)
+
+# ================================================================ Comments view
+def commentsview(request, post_id):
+
+    comments = Comment.objects.order_by("-timestamp").filter(post_id=post_id)
+    listOfComments = []
+
+    for comment in comments:
+        individualComment = comment.serialize()
+        listOfComments.append(individualComment)
+
+    return JsonResponse(listOfComments, safe=False)

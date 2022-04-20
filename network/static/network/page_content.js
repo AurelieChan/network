@@ -3,6 +3,13 @@ function topPage() {
   window.location.reload();
 };
 
+// ============================= Resize small textareas depending on text length
+function textareaResize(element) {
+  element.style.paddingBottom = "13px";
+  element.style.height = "5px";
+  element.style.height = (element.scrollHeight)+"px";
+}
+
 // ===================================================== Document event listener
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -16,26 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // By default, load all posts
   loadPosts('all_posts');
 
-  // Auto-resize textareas as the text gets longer.
-  // https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
-  const text = document.getElementsByTagName("textarea");
-  for (let i = 0; i < text.length; i++) {
-    text[i].setAttribute("style", "height:" + (text[i].scrollHeight) + "px; overflow-y:hidden;");
-    text[i].addEventListener("input", OnInput, false);
-  };
-
-  function OnInput() {
-    this.style.height = "auto";
-    this.style.height = (this.scrollHeight) + "px";
-  };
-
 });
 
+// =============================================================================
 // ============================================================ Send chatterpost
 function sendChatterpost() {
 
   fetch('/chatterpost', {
     method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin',
     body: JSON.stringify({
       chatterpost: document.getElementById('compose-message').value
     })
@@ -45,6 +42,7 @@ function sendChatterpost() {
     var text = Object.values(result);
     var message = document.getElementById("message");
     message.innerHTML = text;
+    message.style.display = "block";
 
     // If message successfully sent, reset message + empty the box
     if (Object.keys(result) == 'message') {
@@ -57,6 +55,7 @@ function sendChatterpost() {
         message.innerHTML = '';
         message.classList.remove('smooth-reset');
         message.style.animationPlayState='initial';
+        message.style.display = "none";
 
         // Check what is the current view
         let viewName = (document.getElementById('view-name').textContent).replace(' ', '_');
@@ -141,8 +140,11 @@ function postDiv(post) {
   var sender = post.sender;
   var timestamp = post.timestamp;
   var chatterpost = post.chatterpost;
+  var edited = post.edited;
+  var deleted = post.deleted;
   var follow = post.follow;
   var likedby = post.likedby;
+  var commentsCount = post.comments;
 
   // Right icons: edit, follow or unfollow
   var username = document.querySelector('#username').textContent;
@@ -168,6 +170,10 @@ function postDiv(post) {
 
   // Solid or regular heart if liked or not by the current user
   heart = (likedby.includes(username)) ? `fas` : `far`;
+  // Add "modified" mention if the post has been edited
+  edit_mention = (edited) ? `(modified)` : "";
+  // Style default text if got deleted
+  deleted_txt = (deleted) ? `deleted_txt` : "";
 
   // Design each post view
   return `<div class="purple-box" id="${postId}">
@@ -177,27 +183,44 @@ function postDiv(post) {
           <strong style="color:#dba6ed">${sender}</strong>
         </a>
         chatted on ${timestamp}:
+        <span style="color:#676767">${edit_mention}</span>
       </p>
+
       ${icon}
     </div>
-    <div class="message-box">${chatterpost}</div>
+
+    <div class="message-box ${deleted_txt}" id="txt${post.id}">${chatterpost}</div>
+
     <p class="likes-comments">
-      <span id="like_${post.id}">${likedby.length}</span>
+      <span id="like_${post.id}" style="letter-spacing: 0.5px">${likedby.length}</span>
       <i style="color:#dba6ed" class="${heart} fa-heart" id="${heartId}"
       onclick="like('${post.id}', ${likedby.includes(username)})"></i> &nbsp;
 
-      0 <i style="color:#dba6ed" class="far fa-comment"></i>
+      <span id="comCount_${post.id}" style="letter-spacing: 0.5px">${commentsCount}</span>
+      <i style="color:#dba6ed" class="far fa-comment" onclick="showComments(${post.id}, ${commentsCount}, false)"></i>
     </p>
+
+    <div id="comments${post.id}" class="comment-section" style="display:none;">
+      <p class="intro-sentence" style="color: #dba6ed; display:none; margin-left: 0;" id="error_msg"></p>
+      <textarea rows="1" class="glow" id="compose-comment${post.id}" oninput="textareaResize(this)"
+        placeholder="Wanna comment something smart about it?"></textarea>
+      <button type="button" name="button" onclick="sendComment(${post.id}, ${commentsCount})"><b>Comment</b></button>
+      <div id="displayComments_${post.id}"></div>
+    </div>
+
   </div>`
 };
 
+// =============================================================================
 // =================================================================== Edit view
 function editView(id) {
 
   thisDiv = document.getElementById(`id_${id}`);
 
+  var taHeight = document.getElementById(`txt${id}`).offsetHeight + "px";
+
   // Hide 3 first divs for the edit view
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < 4; i++) {
     thisDiv.children[i].style.display = "none";
   }
 
@@ -208,35 +231,75 @@ function editView(id) {
     `<div>
       <p class="intro-sentence">You are currently editing...</p>
       <i class="fas fa-pen edit cancel-edit mytooltip"
-        onclick="cancelEdit()">
+        onclick="stopEdit()">
         <span id='text' class="tooltiptext">Cancel Edit</span>
       </i>
-      <textarea>${text}</textarea>
-      <button type="button" name="button" onclick="sendChatterpost()"><b>Edit</b></button>
+      <textarea style="height:${taHeight}" class="glow" oninput="textareaResize(this)"
+        id="edit-message">${text}</textarea>
+      <button type="button" name="button" onclick="editPost(${id})"><b>Edit</b></button>
     </div>`;
 };
 
 // ================================================================= Cancel edit
-function cancelEdit() {
+function stopEdit() {
   // Show again the parts of the div from this post
   for (i = 0; i < 3; i++) {
     thisDiv.children[i].style.display = "block";
   }
 
   // Remove the edit field
-  thisDiv.children[3].remove();
+  thisDiv.children[4].remove();
 };
 
 // =================================================================== Edit Post
-function editPost() {
+function editPost(id) {
 
-}
+  fetch(`/editpost/${id}`, {
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin',
+    method: 'POST',
+    body: JSON.stringify({
+    editpost: document.getElementById('edit-message').value
+    })
+  })
+  .then(response => response.json())
+  .then(result => {
 
+    // Determine the class of the displayed text
+    if (Object.keys(result) == "error") { // error message = red
+      newMessage = result.error;
+      document.getElementById(`txt${id}`).style.color="red";
+    }
+
+    else {
+      newMessage = result.message;
+
+      if (result.deleted) // deleted message = grey + italic
+        document.getElementById(`txt${id}`).classList.add('deleted_txt');
+      else // normal message = white
+        document.getElementById(`txt${id}`).classList.remove('deleted_txt');
+
+    }
+
+    // Replace the text in the inbox
+    document.getElementById(`txt${id}`).textContent = newMessage;
+
+    // Remove the edit field
+    stopEdit();
+
+    // Add animation effect
+    document.getElementById(`id_${id}`).classList.add('new-message');
+  });
+};
+
+// =============================================================================
 // ============================================================= Follow/Unfollow
 function followSender(sender, follow) {
 
   fetch(`post/${sender}`, {
     method: 'PUT',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin',
     body: JSON.stringify({
       follow: !follow
     })
@@ -297,11 +360,14 @@ function changeClassFollow(follow) {
   follow.setAttribute("onClick", `followSender("${follow.classList[2]}", true);`);
 };
 
+// =============================================================================
 // ======================================================================== Like
 function like(post_id, likedby) {
 
   fetch(`postid/${post_id}`, {
     method: 'PUT',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin',
     body: JSON.stringify({
       liked: !likedby
     })
@@ -342,4 +408,101 @@ function like(post_id, likedby) {
 
 };
 
-//pagination and comments
+// =============================================================================
+// ==================================================================== Comments
+function showComments(post_id, commentsCount) {
+
+  var comments = document.getElementById(`comments${post_id}`);
+
+  if (comments.style.display === "none") {
+    comments.style.display = "block";
+    displayAllComments(post_id, commentsCount);
+  }
+  else {
+    comments.style.display = "none";
+    // Clear comments
+    document.getElementById(`displayComments_${post_id}`).innerHTML='';
+  }
+};
+
+// ======================================================== Display all comments
+function displayAllComments(post_id, commentsCount, insert) {
+
+  fetch(`commentsview/${post_id}`)
+  .then(response => response.json())
+  .then(comments => {
+
+    const promises = [];
+    var commentsDiv = document.getElementById(`displayComments_${post_id}`);
+
+    if (insert) { // If sending new comment
+      var cLast = 0;
+      Promise.all(promises).then(() => {
+        commentsDiv.children[0].children[1].classList.add('new-message');
+      });
+    }
+    else // Just display other comments
+      var cLast = commentsCount - 1;
+
+    // Make a for loop throught each comments to display them
+    for (let c = cLast; c >= 0 ; c--) {
+
+      commentsDiv.innerHTML =
+      `<div>
+        <p class="comment-sentence">
+          <a onclick="loadPosts('${comments[c].commentor}')">
+            <strong style="color:#dba6ed">${comments[c].commentor}</strong>
+          </a>
+          commented on ${comments[c].timestamp}:
+        </p>
+
+        <div class="comment-box">${comments[c].comment}</div>
+      </div>` + commentsDiv.innerHTML;
+
+    };
+
+    // Add animation effect
+    if (insert) {
+      commentsDiv.children[0].children[1].classList.add('new-message');
+    }
+
+  });
+};
+
+// ================================================================ Send comment
+function sendComment(post_id) {
+  fetch(`/comment/${post_id}`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin',
+    body: JSON.stringify({
+      comment: document.getElementById(`compose-comment${post_id}`).value,
+    })
+  })
+  .then(response => response.json())
+  .then(result => {
+
+    var message = document.getElementById("error_msg");
+
+    if (Object.keys(result) == 'message') { // Successfully sent
+      // Update amount of comments
+      var commentsCount = Object.values(result);
+      // Display it near the comments icon
+      document.getElementById(`comCount_${post_id}`).innerHTML = commentsCount;
+
+      // Empty comment text field
+      document.getElementById(`compose-comment${post_id}`).value ="";
+      // Hide error message field
+      message.style.display = "none";
+
+      // Call the display function to insert the new comment
+      displayAllComments(post_id, commentsCount, true);
+    }
+    else { // Show error message
+      var text = Object.values(result);
+      message.innerHTML = text;
+      message.style.display = "block";
+    }
+
+  });
+};

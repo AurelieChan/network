@@ -22,9 +22,14 @@ i, a {
   cursor: pointer;
 }
 
+.deleted_txt {
+  font-style: italic;
+  color: #595959!important;
+}
+
 /* =================================================================== Navbar */
 .navbar {
-  background-color: #141414;
+  background-color: #1c1c1c;
 }
 
 .hl {
@@ -47,8 +52,8 @@ i, a {
 
 .chatter:hover {
   text-decoration: none;
-  color: #fff5f5!important;
-  text-shadow: 0px 0px 1px #ff0066, 0 5px 15px #ff80b2, 0px -2px 25px #FF0066;
+  color: #ffebed!important;
+  text-shadow: 0px 2px 2px #FF0066, 0 5px 15px #FF99A3, 0px -2px 25px #FF0066;
 }
 
 /* .nav-link, a { */
@@ -59,6 +64,69 @@ i, a {
 /* .nav-link:hover, a:hover { */
 a:hover {
   color: #dba6ed !important;
+}
+
+/* ================================================================ Write box */
+.purple-box {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #9900cc;
+  border-radius: 15px;
+  background-color: #1c1c1c;
+  margin: 20px 0;
+}
+
+.padding {
+  padding: 15px;
+}
+
+textarea, button, .button, .input-form, .message-box {
+  width: 850px;
+  display: block;
+  border-radius: 15px;
+  margin: 10px auto 10px auto;
+  padding: 7px;
+}
+
+textarea, .input-form {
+  outline: none;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #e0b2f0;
+  box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;
+  background-color: #000000;
+  color: #e6e6e6;
+  margin-bottom: 25px;
+}
+
+textarea:hover, .input-form:hover, .glow {
+  box-shadow: 0px -2px 8px #FF99A3, 0 2px 8px #FF0066;
+}
+
+textarea:focus, .input-form:focus {
+  border-width: 3px;
+  box-shadow: 0px -2px 16px #FF99A3, 0 3px 12px #FF0066;
+}
+
+::placeholder {
+  color: #676767;
+  opacity: 1;
+}
+
+button, .button {
+  border: none;
+  background-color: #000000;
+  color: #9900cc;
+}
+
+button:hover, .button:hover {
+  color: #fc3382;
+  background-color: #31312e;
+}
+
+button:focus {
+  outline: none;
+  border: none;
 }
 
 /* ============================================================== User's info */
@@ -145,66 +213,6 @@ a:hover {
   visibility: visible;
 }
 
-/* ================================================================ Write box */
-.purple-box {
-  border-style: solid;
-  border-width: 1px;
-  border-color: #9900cc;
-  border-radius: 15px;
-  background-color: #141414;
-  margin: 20px 0 20px 0;
-}
-
-textarea, button, .button, .input-form, .message-box {
-  width: 850px;
-  display: block;
-  border-radius: 15px;
-  margin: 10px auto 15px auto;
-  padding: 7px;
-}
-
-textarea, .input-form {
-  outline: none;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #e0b2f0;
-  box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;
-  background-color: #000000;
-  color: #e6e6e6;
-  margin-bottom: 25px;
-}
-
-textarea:hover, .input-form:hover {
-  border-color: #fff5f5!important;
-  border-width: 1px;
-  box-shadow: 0px 1px 3px #ff99a3, 0 3px 12px #FFCC66, 0px -2px 16px #FF0066;
-}
-
-textarea:focus, .input-form:focus {
-  border-width: 3px;
-}
-
-::placeholder {
-  color: #595959;
-  opacity: 1;
-}
-
-button, .button {
-  border: none;
-  background-color: #000000;
-  color: #9900cc;
-}
-
-button:hover, .button:hover {
-  color: #fc3382;
-  background-color: #31312e;
-}
-
-button:focus {
-  outline: none;
-  border: none;
-}
-
 /* ================================================================= Read box */
 .intro-sentence {
   display: inline-block;
@@ -245,13 +253,37 @@ button:focus {
 
 .new-message {
   animation-name: hide;
-  animation: new-message-shine 0.7s;
+  animation: new-message-shine 0.6s;
+  transition-timing-function: ease-in-out;
 }
 
 @keyframes new-message-shine {
-  0% {border-color: #6666FF;}
-  15% {box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;}
-  50% {box-shadow: 0px 1px 2px #ff0066, 0 3px 15px #ff80b2, 0px -1px 18px #FF0066; background-color: #505046}
-  85% {box-shadow: 0px 1px 3px #ff99a3, 0 3px 18px #FFCC66, 0px -2px 16px #FF0066;}
+  0% {box-shadow: 0 5px 15px #4040ff, 0px -2px 5px #cc33ff, 0px 0px 10px #e0b2f0;}
+  30% {box-shadow: 0px 3px 7px #99ccff, 0 3px 22px #cc99ff, 0px -4px 25px #0099ff, 6px 18px 45px #6666ff; background-color: #505046;}
+  60% {box-shadow: 0px 1px 2px #ff0066, 0 3px 15px #ff80b2, 0px -1px 18px #FF0066;}
   100% {border-color: #e0b2f0; background-color: #000000;}
+}
+
+/* ================================================================= Comments */
+.comment-section {
+  margin: 30px 70px;
+}
+
+.comment-sentence {
+  color: #F0D9F7;
+  font-style: italic;
+  margin: 25px 0px 10px 0px;
+}
+
+.comment-section > button, .comment-section > textarea {
+  width: 760px;
+}
+
+.comment-box {
+  white-space: pre-wrap;
+  box-shadow: 0 2px 6px #7268d3, 0px -2px 6px #ae70cc;
+  background-color: #000000;
+  color: #e6e6e6;
+  border-radius: 15px;
+  padding: 7px;
 }
