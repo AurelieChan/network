@@ -197,14 +197,14 @@ function postDiv(post) {
       onclick="like('${post.id}', ${likedby.includes(username)})"></i> &nbsp;
 
       <span id="comCount_${post.id}" style="letter-spacing: 0.5px">${commentsCount}</span>
-      <i style="color:#dba6ed" class="far fa-comment" onclick="showComments(${post.id}, ${commentsCount}, false)"></i>
+      <i style="color:#dba6ed" class="far fa-comment" onclick="showComments(${post.id}, false)"></i>
     </p>
 
     <div id="comments${post.id}" class="comment-section" style="display:none;">
       <p class="intro-sentence" style="color: #dba6ed; display:none; margin-left: 0;" id="error_msg"></p>
       <textarea rows="1" class="glow" id="compose-comment${post.id}" oninput="textareaResize(this)"
         placeholder="Wanna comment something smart about it?"></textarea>
-      <button type="button" name="button" onclick="sendComment(${post.id}, ${commentsCount})"><b>Comment</b></button>
+      <button type="button" name="button" onclick="sendComment(${post.id})"><b>Comment</b></button>
       <div id="displayComments_${post.id}"></div>
     </div>
 
@@ -410,13 +410,13 @@ function like(post_id, likedby) {
 
 // =============================================================================
 // ==================================================================== Comments
-function showComments(post_id, commentsCount) {
+function showComments(post_id) {
 
   var comments = document.getElementById(`comments${post_id}`);
 
   if (comments.style.display === "none") {
     comments.style.display = "block";
-    displayAllComments(post_id, commentsCount);
+    displayAllComments(post_id, false);
   }
   else {
     comments.style.display = "none";
@@ -426,23 +426,16 @@ function showComments(post_id, commentsCount) {
 };
 
 // ======================================================== Display all comments
-function displayAllComments(post_id, commentsCount, insert) {
+function displayAllComments(post_id, insert) {
 
   fetch(`commentsview/${post_id}`)
   .then(response => response.json())
   .then(comments => {
 
-    const promises = [];
+    commentsCount = Object.keys(comments).length;
     var commentsDiv = document.getElementById(`displayComments_${post_id}`);
 
-    if (insert) { // If sending new comment
-      var cLast = 0;
-      Promise.all(promises).then(() => {
-        commentsDiv.children[0].children[1].classList.add('new-message');
-      });
-    }
-    else // Just display other comments
-      var cLast = commentsCount - 1;
+    cLast = (insert) ? 0 : commentsCount - 1;
 
     // Make a for loop throught each comments to display them
     for (let c = cLast; c >= 0 ; c--) {
@@ -496,7 +489,7 @@ function sendComment(post_id) {
       message.style.display = "none";
 
       // Call the display function to insert the new comment
-      displayAllComments(post_id, commentsCount, true);
+      displayAllComments(post_id, true);
     }
     else { // Show error message
       var text = Object.values(result);
