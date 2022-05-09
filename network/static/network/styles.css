@@ -12,6 +12,11 @@ h2 {
   margin-bottom: 20px;
 }
 
+.grid-container {
+  display: grid;
+  grid-template-columns: auto 900px auto;
+}
+
 .box-page {
   margin-right: auto;
   margin-left: auto;
@@ -56,18 +61,16 @@ i, a {
   text-shadow: 0px 2px 2px #FF0066, 0 5px 15px #FF99A3, 0px -2px 25px #FF0066;
 }
 
-/* .nav-link, a { */
 .nav-link, a {
   color: #f0d9f7 !important;
 }
 
-/* .nav-link:hover, a:hover { */
 a:hover {
   color: #dba6ed !important;
 }
 
 /* ================================================================ Write box */
-.purple-box {
+.compose-box {
   border-style: solid;
   border-width: 1px;
   border-color: #9900cc;
@@ -194,19 +197,28 @@ button:focus {
 
 .tooltiptext {
   visibility: hidden;
-  color: #141414;
   font-size: 14px;
   font-family: sans-serif;
-  background-color: #dba6ed;
   text-align: center;
   border-radius: 10px;
   padding: 5px;
   width: 160px;
-  bottom: 150%;
   left: 50%;
   margin-left: -80px;
   position: absolute;
   z-index: 1;
+}
+
+.box {
+  bottom: 27px;
+  color: #141414;
+  background-color: #dba6ed;
+}
+
+.btn {
+  bottom: 55px;
+  color: #9900cc;
+  font-weight: bold;
 }
 
 .mytooltip:hover .tooltiptext {
@@ -286,4 +298,49 @@ button:focus {
   color: #e6e6e6;
   border-radius: 15px;
   padding: 7px;
+}
+
+/* ==================================================== buttons right and left*/
+.btn-box {
+  display: flex;
+  justify-content: center;
+}
+
+#btn-up, #btn-down, #scroll, #page {
+  background-image: linear-gradient(to bottom right, #9900CC, #3333CC);
+  height: 75px;
+  width: 75px;
+  position: fixed;
+  font-size: 30px;
+}
+
+#btn-up, #scroll {
+  top: 42%;
+  transform: translateY(-58%);
+  border-radius: 49% 51% 41% 59% / 50% 36% 64% 50%;
+}
+
+#btn-down, #page {
+  top: 58%;
+  transform: translateY(-42%);
+  border-radius: 54% 46% 51% 49% / 36% 44% 56% 64%;
+}
+
+#btn-up:hover, #scroll:hover {
+  border-radius: 55% 45% 47% 53% / 35% 52% 48% 65%;
+  top: 41.5%;
+  transform: translateY(-58.5%);
+}
+
+#btn-down:hover, #page:hover {
+  border-radius: 44% 56% 56% 44% / 45% 45% 55% 55%;
+  top: 58.5%;
+  transform: translateY(-41.5%);
+}
+
+#page-number, #end-page {
+  color: #9900cc;
+  font-size: 20px;
+  bottom: 10px;
+  position: fixed;
 }

@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-# from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 
 from .models import User, Post, Comment
 
@@ -124,10 +124,6 @@ def postsview(request, view):
 
     # Empty list of posts
     listOfPosts = []
-
-    # Add the "box" as the first item to the dictionary
-    listOfPosts.append(box)
-
     posts = posts.order_by("-timestamp").all()
 
     # Check if the sender of each post is followed
@@ -150,7 +146,20 @@ def postsview(request, view):
         # Then append all the appropriate posts
         listOfPosts.append(individualPost)
 
-    return JsonResponse(listOfPosts, safe=False)
+    # Use Paginator to show 10 posts by page
+    paginator = Paginator(listOfPosts, 10)
+
+    # Get the number of the page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    obj_list = page_obj.object_list
+
+    # Add the "box" as the first item to the dictionary
+    obj_list.insert(0, box)
+
+    obj_list.append({"has_next": page_obj.has_next()})
+
+    return JsonResponse(obj_list, status=200, safe=False)
 
 # ========================================================================= Edit
 @login_required

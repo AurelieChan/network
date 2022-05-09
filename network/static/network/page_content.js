@@ -14,18 +14,18 @@ function textareaResize(element) {
 document.addEventListener('DOMContentLoaded', function() {
 
   // Use buttons to toggle between views
-  document.querySelector('#all_posts').addEventListener('click', () => loadPosts('all_posts'));
-  document.querySelector('#following').addEventListener('click', () => loadPosts('following'));
+  document.querySelector('#all_posts').addEventListener('click', () => loadPosts('All_posts'));
+  document.querySelector('#following').addEventListener('click', () => loadPosts('Following'));
 
   var username = document.querySelector('#username').textContent;
   document.querySelector('#username').addEventListener('click', () => loadPosts(username));
 
   // By default, load all posts
-  loadPosts('all_posts');
+  loadPosts('All_posts');
 
 });
 
-// =============================================================================
+// ================================================================ CHATTERPOSTS
 // ============================================================ Send chatterpost
 function sendChatterpost() {
 
@@ -69,25 +69,27 @@ function sendChatterpost() {
 // ================================================================== Load posts
 function loadPosts(view) {
 
-  viewName = `${view.charAt(0).toUpperCase() + view.slice(1)}`;
+  viewName = view;
 
   // Show the view name
   document.querySelector('#posts-view').innerHTML =
     `<div id="user-title"><h2 id="view-name">${viewName.replaceAll('_', ' ')}</h2></div>`;
+
+  // Get back to page 1 everytime the view is changed
+  page = 1;
+  document.getElementById('btn-up').style.color ="#9900cc";
 
   displayChatterposts(view, false);
 };
 
 // ======================================================== Display chatterposts
 function displayChatterposts(view, insert) {
-// True for insertion/ False for just load
 
-  fetch(`postsview/${view}`)
+  fetch(`postsview/${view}?page=${page}`)
   .then(response => response.json())
   .then(posts => {
 
-    if (insert) {
-      // Insert new post
+    if (insert) { // Insert new post
       var username = document.getElementById("username").textContent;
 
       for (let i = 1; i < 3; i++) { // 3 is a "security" value for top checks
@@ -102,14 +104,13 @@ function displayChatterposts(view, insert) {
         }
       }
     }
-    else {
-      // Construct user infos view
+    else { // Construct user infos view
       const followers = posts[0]["followers"];
       const following = posts[0]["following"];
       const chatterposts = posts[0]["postsCount"];
 
       // Don't display anything if not userview
-      if (view != "all_posts" && view != "following") {
+      if (view != "All_posts" && view != "Following") {
 
         // Display words in singular or plural depending of numbers
         followerWord = (followers == 1) ? "follower" : "followers";
@@ -124,11 +125,28 @@ function displayChatterposts(view, insert) {
           `</p>`;
       }
 
-      // Load posts. Starts at 1 because 0 contains the box with user's data.
-      for (let i = 1; i < posts.length; i++) {
+      // Display each post
+      for (let i = 1; i < posts.length - 1; i++) { // -1 because of "has next"
         document.querySelector('#posts-view').innerHTML += postDiv(posts[i]);
       }
-    }
+
+      // Display page number
+      document.getElementById('page-number').innerHTML = `Page ${page}`;
+
+      // Enable or disable the button if next page or not + message
+      if (posts[posts.length - 1].has_next == true) {
+        document.getElementById('btn-down').style.color ="#df3390";
+        document.getElementById('btn-down').disabled = false;
+        document.getElementById('end-page').innerHTML = "";
+      }
+      else {
+        document.getElementById('btn-down').style.color ="#9900cc";
+        document.getElementById('btn-down').disabled = true;
+        document.getElementById('end-page').innerHTML = "Last page";
+        document.getElementById("scroll").value = "false";
+      }
+    };
+
   });
 };
 
@@ -152,19 +170,19 @@ function postDiv(post) {
   if (sender === username) {
     icon = `<i class="fas fa-pen edit mytooltip"
               onclick="editView(${post.id})">
-              <span id='text' class="tooltiptext">Edit this message</span>
+              <span id='text' class="tooltiptext box">Edit this message</span>
             </i>`
   }
   else if (follow == true) {
     icon = `<i class="fa fa-user-check usercheck mytooltip ${sender}"
               onclick="followSender('${sender}', ${follow})">
-              <span id='text' class="tooltiptext">Unfollow this fellow</span>
+              <span id='text' class="tooltiptext box">Unfollow this fellow</span>
             </i>`;
   }
   else {
     icon = `<i class="fa fa-user-plus userplus mytooltip ${sender}"
               onclick="followSender('${sender}', ${follow})">
-              <span id='text' class="tooltiptext">Follow this fellow</span>
+              <span id='text' class="tooltiptext box">Follow this fellow</span>
             </i>`;
   }
 
@@ -176,7 +194,7 @@ function postDiv(post) {
   deleted_txt = (deleted) ? `deleted_txt` : "";
 
   // Design each post view
-  return `<div class="purple-box" id="${postId}">
+  return `<div class="compose-box" id="${postId}">
     <div>
       <p class="intro-sentence">
         <a onclick="loadPosts('${sender}')">
@@ -211,7 +229,83 @@ function postDiv(post) {
   </div>`
 };
 
-// =============================================================================
+// ================================================================== PAGINATION
+// ================================================================= Scroll mode
+function scrollMode() {
+  // Enable the scrolling option
+  document.getElementById("scroll").value = "true";
+
+  //change the color of the icons
+  document.getElementById('scroll').style.color ="#df3390";
+  document.getElementById('page').style.color ="#9900cc";
+
+  // Make up and down buttons invisible
+  document.getElementById('btn-up').style.display = "none";
+  document.getElementById('btn-down').style.display = "none";
+};
+
+window.onscroll = function () {
+
+  if (document.getElementById("scroll").value == "true") {
+    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
+      page += 1;
+      view = document.querySelector('#view-name').innerHTML.replaceAll(' ', '_');
+
+      displayChatterposts(view, false);
+    };
+  };
+};
+
+// =================================================================== Page mode
+function pageMode() {
+  // Disable the scrolling option
+  document.getElementById("scroll").value = "false";
+
+  //change the color of the icons
+  document.getElementById('scroll').style.color ="#9900cc";
+  document.getElementById('page').style.color ="#df3390";
+
+  // Make up and down buttons invisible
+  document.getElementById('btn-up').style.display = "block";
+  document.getElementById('btn-down').style.display = "block";
+};
+
+// =================================================================  buttonDown
+function buttonDown() {
+
+  // Increment page
+  page += 1;
+  document.getElementById('btn-up').style.color ="#df3390";
+
+  showPosts();
+};
+
+// ==================================================================== buttonUp
+function buttonUp() {
+
+  if (page > 1) {
+    page -= 1;
+
+    showPosts();
+  }
+
+  if (page < 2)
+    document.getElementById('btn-up').style.color ="#9900cc";
+};
+
+// =================================================== Show 10 posts at the time
+function showPosts() {
+  view = document.querySelector('#view-name').innerHTML.replaceAll(' ', '_');
+
+  deletePosts = document.querySelector('#posts-view').childNodes.length - 1;
+
+  for (let i = 1; i <= deletePosts; i++)
+    document.querySelector('#posts-view').childNodes[1].remove();
+
+  displayChatterposts(view, false);
+}
+
+// ======================================================================== EDIT
 // =================================================================== Edit view
 function editView(id) {
 
@@ -292,8 +386,8 @@ function editPost(id) {
   });
 };
 
-// =============================================================================
-// ============================================================= Follow/Unfollow
+// ====================================================================== FOLLOW
+// ===================================================== Follow a writer(sender)
 function followSender(sender, follow) {
 
   fetch(`post/${sender}`, {
@@ -360,8 +454,8 @@ function changeClassFollow(follow) {
   follow.setAttribute("onClick", `followSender("${follow.classList[2]}", true);`);
 };
 
-// =============================================================================
-// ======================================================================== Like
+// ======================================================================== LIKE
+// ================================================================= Like/Unlike
 function like(post_id, likedby) {
 
   fetch(`postid/${post_id}`, {
@@ -408,8 +502,8 @@ function like(post_id, likedby) {
 
 };
 
-// =============================================================================
-// ==================================================================== Comments
+// ==================================================================== COMMENTS
+// =============================================================== Show comments
 function showComments(post_id) {
 
   var comments = document.getElementById(`comments${post_id}`);

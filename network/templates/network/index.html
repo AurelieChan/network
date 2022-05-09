@@ -1,17 +1,55 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-  <div class="box-page">
 
-    {# Compose box #}
-    <form class="purple-box" style="padding: 10px 0;">
-      <p class="intro-sentence" style="color: #dba6ed; display: none;" id="message"></p>
-      <textarea style="min-height:90px" cols="50" id="compose-message" oninput="textareaResize(this)" placeholder="What's up today, {{user.username}}?"></textarea>
-      <button type="button" name="button" onclick="sendChatterpost()">Send</button>
-    </form>
+  <div class="grid-container">
 
-    {# Posts view #}
-    <div id="posts-view"></div>
+    {# Buttons left - infinite scroll or pagination #}
+    <div class="btn-box">
+
+      <p id="end-page"></p>
+
+      <button type="button" id="scroll" value="false" onclick="scrollMode()">
+        <i class="fas fa-toilet-paper mytooltip">
+          <span id='text' class="tooltiptext btn">Scroll mode</span>
+        </i>
+      </button>
+
+      <button type="button" id="page" style="color:#df3390" onclick="pageMode()">
+        <i class="fas fa-book-open mytooltip">
+          <span id='text' class="tooltiptext btn">Page mode</span>
+        </i></button>
+    </div>
+
+    {# Center of the page #}
+    <div class="box-page">
+
+      {# Compose box #}
+      <form class="compose-box" id="main-form" style="padding: 10px 0;">
+        <p class="intro-sentence" style="color: #dba6ed; display: none;" id="message"></p>
+        <textarea style="min-height:90px" cols="50" id="compose-message" oninput="textareaResize(this)" placeholder="What's up today, {{user.username}}?"></textarea>
+        <button type="button" name="button" onclick="sendChatterpost()">Send</button>
+      </form>
+
+      {# Posts view #}
+      <div id="posts-view"></div>
+
+    </div>
+
+    {# Buttons right - up and down #}
+    <div class="btn-box">
+      <p id="page-number"></p>
+      <button type="button" onclick="buttonUp()" id="btn-up">
+        <i class="fas fa-arrow-up mytooltip">
+          <span id='text' class="tooltiptext btn">Previous page</span>
+        </i>
+      </button>
+      <button type="button" onclick="buttonDown()" id="btn-down">
+        <i class="fas fa-arrow-down mytooltip">
+          <span id='text' class="tooltiptext btn">Next page</span>
+        </i>
+      </button>
+    </div>
 
   </div>
 
