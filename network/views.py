@@ -114,10 +114,11 @@ def postsview(request, view):
             posts = User.objects.get(username=view).sent_post.all()
 
             # Store basic infos of the specific user in a box
-            box =   {   "followers": User.objects.get(username=view).followers.count(),
-                        "following": User.objects.get(username=view).following.count(),
-                        "postsCount": User.objects.get(username=view).sent_post.count()
-                    }
+            box = {
+                "followers": User.objects.get(username=view).followers.count(),
+                "following": User.objects.get(username=view).following.count(),
+                "postsCount": User.objects.get(username=view).sent_post.count()
+            }
 
         except:
             return JsonResponse({"error": "Invalid posts view."}, status=400)
@@ -252,27 +253,27 @@ def like(request, post_id):
 # ====================================================================== Comment
 @login_required
 def comment(request, post_id):
-        # Composing a new post must be via POST
-        if request.method != "POST":
-            return JsonResponse({"error": "POST request required."}, status=400)
+    # Composing a new post must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
 
-        # Get contents of the message
-        data = json.loads(request.body)
-        comment = data.get("comment")
-        if comment == "":
-            return JsonResponse({"error": "Are you sure you don't have anything to say?"})
+    # Get contents of the message
+    data = json.loads(request.body)
+    comment = data.get("comment")
+    if comment == "":
+        return JsonResponse({"error": "Are you sure you don't have anything to say?"})
 
-        else:
-            comment = Comment(
-                commentor=request.user,
-                comment=comment,
-                post=Post.objects.get(id=post_id)
-            )
-            comment.save()
+    else:
+        comment = Comment(
+            commentor=request.user,
+            comment=comment,
+            post=Post.objects.get(id=post_id)
+        )
+        comment.save()
 
-            # If comment sent successufully, send new count of comments to the FE
-            countComments = Comment.objects.filter(post_id=post_id).count()
-            return JsonResponse({"message": countComments}, status=201)
+        # If comment sent successufully, send new count of comments to the FE
+        countComments = Comment.objects.filter(post_id=post_id).count()
+        return JsonResponse({"message": countComments}, status=201)
 
 # ================================================================ Comments view
 def commentsview(request, post_id):

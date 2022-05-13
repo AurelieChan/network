@@ -1,10 +1,16 @@
+// ============================================================ Global variables
+var page = 1;
+var running = false;
+
 // =============== Brings back to top page and reload when click on Chatter logo
 function topPage() {
+
   window.location.reload();
 };
 
 // ============================= Resize small textareas depending on text length
 function textareaResize(element) {
+
   element.style.paddingBottom = "13px";
   element.style.height = "5px";
   element.style.height = (element.scrollHeight)+"px";
@@ -22,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // By default, load all posts
   loadPosts('All_posts');
-
 });
 
 // ================================================================ CHATTERPOSTS
@@ -69,7 +74,7 @@ function sendChatterpost() {
 // ================================================================== Load posts
 function loadPosts(view) {
 
-  viewName = view;
+  var viewName = view;
 
   // Show the view name
   document.querySelector('#posts-view').innerHTML =
@@ -138,12 +143,15 @@ function displayChatterposts(view, insert) {
         document.getElementById('btn-down').style.color ="#df3390";
         document.getElementById('btn-down').disabled = false;
         document.getElementById('end-page').innerHTML = "";
+        if (document.getElementById("scroll").value == "stop")
+          document.getElementById("scroll").value = "active";
       }
       else {
         document.getElementById('btn-down').style.color ="#9900cc";
         document.getElementById('btn-down').disabled = true;
         document.getElementById('end-page').innerHTML = "Last page";
-        document.getElementById("scroll").value = "false";
+        if (document.getElementById("scroll").value == "active")
+          document.getElementById("scroll").value = "stop";
       }
     };
 
@@ -201,7 +209,7 @@ function postDiv(post) {
           <strong style="color:#dba6ed">${sender}</strong>
         </a>
         chatted on ${timestamp}:
-        <span style="color:#676767">${edit_mention}</span>
+        <span id="edit_${post.id}" style="color:#676767">${edit_mention}</span>
       </p>
 
       ${icon}
@@ -232,50 +240,69 @@ function postDiv(post) {
 // ================================================================== PAGINATION
 // ================================================================= Scroll mode
 function scrollMode() {
+
   // Enable the scrolling option
-  document.getElementById("scroll").value = "true";
+  document.getElementById("scroll").value = "active";
 
   //change the color of the icons
-  document.getElementById('scroll').style.color ="#df3390";
-  document.getElementById('page').style.color ="#9900cc";
+  document.getElementById('scroll').style.color = "#9900cc";
+  document.getElementById('page').style.color = "#df3390";
 
   // Make up and down buttons invisible
   document.getElementById('btn-up').style.display = "none";
   document.getElementById('btn-down').style.display = "none";
+
+  document.getElementById('end-page').style.display = "none";
+  document.getElementById('page-number').style.display = "none";
 };
 
 window.onscroll = function () {
 
-  if (document.getElementById("scroll").value == "true") {
-    if (window.innerHeight + window.pageYOffset >= document.body.offsetHeight) {
-      page += 1;
-      view = document.querySelector('#view-name').innerHTML.replaceAll(' ', '_');
+  if (document.getElementById("scroll").value == "active" ) {
+    if (window.innerHeight + window.scrollY >= (document.body.offsetHeight - 200)) {
+      if (running === true)
+        console.log('Loading the next page...');
 
-      displayChatterposts(view, false);
+      else {
+        page += 1;
+        view = document.querySelector('#view-name').innerHTML.replaceAll(' ', '_');
+
+        displayChatterposts(view, false);
+
+        running = true;
+        const resetRunning = setTimeout(runningFalse, 1000);
+      }
     };
   };
 };
 
+function runningFalse() {
+  running = false;
+};
+
 // =================================================================== Page mode
 function pageMode() {
+
   // Disable the scrolling option
-  document.getElementById("scroll").value = "false";
+  document.getElementById("scroll").value = "inactive";
 
   //change the color of the icons
-  document.getElementById('scroll').style.color ="#9900cc";
-  document.getElementById('page').style.color ="#df3390";
+  document.getElementById('scroll').style.color = "#df3390";
+  document.getElementById('page').style.color = "#9900cc";
 
   // Make up and down buttons invisible
   document.getElementById('btn-up').style.display = "block";
   document.getElementById('btn-down').style.display = "block";
+
+  // Show page number
+  document.getElementById('page-number').style.display = "block";
 };
 
 // =================================================================  buttonDown
 function buttonDown() {
 
-  // Increment page
   page += 1;
-  document.getElementById('btn-up').style.color ="#df3390";
+  document.getElementById('btn-up').style.color = "#df3390";
 
   showPosts();
 };
@@ -285,16 +312,16 @@ function buttonUp() {
 
   if (page > 1) {
     page -= 1;
-
     showPosts();
   }
 
   if (page < 2)
-    document.getElementById('btn-up').style.color ="#9900cc";
+    document.getElementById('btn-up').style.color = "#9900cc";
 };
 
 // =================================================== Show 10 posts at the time
 function showPosts() {
+
   view = document.querySelector('#view-name').innerHTML.replaceAll(' ', '_');
 
   deletePosts = document.querySelector('#posts-view').childNodes.length - 1;
@@ -303,7 +330,7 @@ function showPosts() {
     document.querySelector('#posts-view').childNodes[1].remove();
 
   displayChatterposts(view, false);
-}
+};
 
 // ======================================================================== EDIT
 // =================================================================== Edit view
@@ -326,7 +353,7 @@ function editView(id) {
       <p class="intro-sentence">You are currently editing...</p>
       <i class="fas fa-pen edit cancel-edit mytooltip"
         onclick="stopEdit()">
-        <span id='text' class="tooltiptext">Cancel Edit</span>
+        <span id='text' class="tooltiptext box">Cancel Edit</span>
       </i>
       <textarea style="height:${taHeight}" class="glow" oninput="textareaResize(this)"
         id="edit-message">${text}</textarea>
@@ -336,6 +363,7 @@ function editView(id) {
 
 // ================================================================= Cancel edit
 function stopEdit() {
+
   // Show again the parts of the div from this post
   for (i = 0; i < 3; i++) {
     thisDiv.children[i].style.display = "block";
@@ -383,6 +411,9 @@ function editPost(id) {
 
     // Add animation effect
     document.getElementById(`id_${id}`).classList.add('new-message');
+
+    // Add the "modified" mention
+    document.getElementById(`edit_${id}`).textContent = '(modified)';
   });
 };
 
@@ -430,6 +461,7 @@ function followSender(sender, follow) {
 
 // =========================================================== Not followed icon
 function changeClassUnfollow(unfollow) {
+
   // Change class
   unfollow.classList.remove('fa-user-check', 'usercheck');
   unfollow.classList.add('fa-user-plus', 'userplus');
@@ -443,6 +475,7 @@ function changeClassUnfollow(unfollow) {
 
 // =============================================================== Followed icon
 function changeClassFollow(follow) {
+
   // Change class
   follow.classList.remove('fa-user-plus', 'userplus');
   follow.classList.add('fa-user-check', 'usercheck');
@@ -558,6 +591,7 @@ function displayAllComments(post_id, insert) {
 
 // ================================================================ Send comment
 function sendComment(post_id) {
+
   fetch(`/comment/${post_id}`, {
     method: 'POST',
     headers: {'X-CSRFToken': csrftoken},
@@ -589,7 +623,7 @@ function sendComment(post_id) {
       var text = Object.values(result);
       message.innerHTML = text;
       message.style.display = "block";
-    }
+    };
 
   });
 };
